@@ -1,0 +1,43 @@
+seed: 44
+
+data:
+  train_root: data/NCT-CRC-HE-100K
+  train_split: data/splits/train.csv
+  val_split: data/splits/val.csv
+  test_split: data/splits/test.csv
+  image_size: 224
+  val_ratio: 0.15
+  num_workers: 4
+  max_samples_per_class: 2000
+
+model:
+  backbone: resnet18
+  pretrained: true
+  num_classes: 9
+  feature_dim: 512
+  dropout: 0.2
+  constrained: true
+
+training:
+  epochs: 10
+  batch_size: 64
+  lr: 0.0001
+  weight_decay: 0.0001
+  amp: true
+  grad_clip: 5.0
+
+loss:
+  faithfulness_weight: 0.05
+  consistency_weight: 0.1
+  sparsity_weight: 0.00001
+  mask_ratio: 0.2
+
+evaluation:
+  topk_ratios:
+    - 0.01
+    - 0.05
+    - 0.10
+
+output:
+  checkpoint_dir: checkpoints/seed_44/seed_42
+  result_dir: outputs

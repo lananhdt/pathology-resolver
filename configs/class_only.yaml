@@ -1,0 +1,6 @@
+model:
+  constrained: true
+
+loss:
+  consistency_weight: 0.0
+  sparsity_weight: 0.0
