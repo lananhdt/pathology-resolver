@@ -114,3 +114,21 @@ def read_split_csv(path):
             )
 
     return rows
+    
+def get_stain_transform(
+    severity="strong",
+):
+    if severity == "strong":
+        return transforms.Compose([
+            transforms.ColorJitter(
+                brightness=0.35,
+                contrast=0.35,
+                saturation=0.35,
+                hue=0.08,
+            ),
+            transforms.ToTensor(),
+            transforms.Normalize(
+                [0.485, 0.456, 0.406],
+                [0.229, 0.224, 0.225],
+            ),
+        ])

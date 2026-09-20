@@ -77,10 +77,16 @@ def run_epoch(
                 device_type=device.type,
                 enabled=use_amp,
             ):
-                outputs = model(
-                    images,
-                    return_aux=True,
-                )
+                if train:
+                    outputs = model(
+                        images,
+                        return_aux=True,
+                        targets=targets,
+                    )
+                else:
+                    outputs = model.forward_two_pass(
+                        images
+                    )
 
                 logits = outputs["logits"]
                 evidence = outputs[
@@ -266,7 +272,7 @@ def main():
             "feature_dim"
         ],
         dropout=cfg["model"]["dropout"],
-        constrained=True,
+        constrained=False,
     ).to(device)
 
     optimizer = AdamW(

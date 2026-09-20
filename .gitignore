@@ -1,0 +1,16 @@
+# Bỏ qua các file checkpoint mô hình siêu nặng
+*.pt
+*.pth
+checkpoints/
+
+# Bỏ qua dataset và các file hình ảnh/kết quả gen ra
+data/
+outputs/
+*.csv
+*.png
+*.jpg
+*.json
+
+# Bỏ qua các file rác của Python
+__pycache__/
+*.pyc

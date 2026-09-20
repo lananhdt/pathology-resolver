@@ -177,3 +177,54 @@ def total_loss(
 
     return loss, values
 
+def make_top_keep_mask(
+    evidence,
+    ratio=0.2,
+):
+    num_tokens = evidence.size(1)
+
+    num_keep = max(
+        1,
+        int(num_tokens * ratio),
+    )
+
+    top_indices = torch.topk(
+        evidence,
+        k=num_keep,
+        dim=1,
+        largest=True,
+        sorted=True,
+    ).indices
+
+    mask = torch.zeros_like(
+        evidence
+    )
+
+    mask.scatter_(
+        dim=1,
+        index=top_indices,
+        value=1.0,
+    )
+
+    return mask
+    
+def branch_separation_loss(
+    class_evidence,
+    morph_evidence,
+):
+    class_prob = torch.softmax(
+        class_evidence,
+        dim=1,
+    )
+
+    morph_prob = torch.softmax(
+        morph_evidence,
+        dim=1,
+    )
+
+    similarity = (
+        class_prob
+        * morph_prob
+    ).sum(dim=1)
+
+    return similarity.mean()

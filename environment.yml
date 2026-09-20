@@ -1,0 +1,23 @@
+name: pathology-resolver
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pytorch
+  - torchvision
+  - pytorch-cuda=12.1
+  - numpy
+  - pandas
+  - scipy
+  - scikit-learn
+  - pillow
+  - pyyaml
+  - tqdm
+  - matplotlib
+  - seaborn
+  - pip
+  - pip:
+      - opencv-python
+      - albumentations

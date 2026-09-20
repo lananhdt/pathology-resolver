@@ -18,7 +18,7 @@ from src.model import PathologyResolver
 from src.utils import load_checkpoint, load_config
 from baselines.gradcam_baseline import make_gradcam
 from baselines.ig_baseline import make_ig
-
+from src.counterfactual import choose_counterfactual_class, contrastive_evidence
 
 def target_confidence(logits, targets):
     probabilities = torch.softmax(logits, dim=1)
@@ -58,10 +58,20 @@ def evaluate_evidence(model, loader, evidence_name, device, ratio, ig_steps=16):
 
         if evidence_name == "pathresolve":
             with torch.no_grad():
-                outputs = model(images, return_aux=True)
+                outputs = model.forward_two_pass(imgs)
                 evidence = outputs["resolved_evidence"]
                 original_logits = outputs["logits"]
-                
+          
+        elif method_name == "contrastive":
+                with torch.no_grad():
+                    tokens = model.extract_features(imgs)
+                    first_pass_logits = model(imgs, return_aux=False, targets=None)
+                    pred_class = first_pass_logits.argmax(dim=1)
+                    counter_class = choose_counterfactual_class(first_pass_logits)
+                    target_ev = model.resolve_evidence(tokens, targets=pred_class)["resolved_evidence"]
+                    counter_ev = model.resolve_evidence(tokens, targets=counter_class)["resolved_evidence"]
+                    return contrastive_evidence(target_ev, counter_ev)
+                    
         elif evidence_name == "average":
             with torch.no_grad():
                 original_logits, evidence = model.forward_average(images)
@@ -152,7 +162,7 @@ def main():
     load_checkpoint(args.checkpoint, model, device=device)
     model.eval()
 
-    ratios = {"pathresolve": [], "average": [], "gradcam": [], "ig": []}
+    ratios = {"pathresolve": [], "average": [], "gradcam": [], "ig": [], "contrastive": []}
 
     for method in ratios:
         result = evaluate_evidence(
